@@ -1,8 +1,11 @@
-import React, { Component } from "react";
-import { RouteComponentProps } from "react-router-dom";
-import { Button, Grid, TextField } from "@mui/material";
+import React, { Component, useState } from "react";
+import {Route, RouteComponentProps, Switch, useHistory} from "react-router-dom";
+import { Grid, TextField } from "@mui/material";
+import { Col, Row, Container, Form, Button, Image } from "react-bootstrap";
 import * as Yup from "yup";
 import AuthService from "../services/auth.service"
+import LoginForm from "./login.form";
+import RegisterForm from "./register.form";
 
 interface RouterProps {
     history: string;
@@ -28,8 +31,6 @@ class Login extends Component<Props, State> {
             loading: false,
             message: ""
         }
-
-        console.log("Login class created.");
     }
 
     validationSchema() {
@@ -66,53 +67,54 @@ class Login extends Component<Props, State> {
     render() {
         const { loading, message } = this.state;
 
-        const initialValues = {
-            email: "",
-            password: ""
-        }
+        // const initialValues = {
+        //     email: "",
+        //     password: ""
+        // }
 
         return (
             <div>
-                <Grid container style={ { minHeight: '20vh', maxHeight: '50vh' } }>
-                    <Grid item xs={12} sm={6}>
-                        <img src="https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80"
-                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                             alt="a happy dog running on the beach" />
-                    </Grid>
-                    <Grid container item xs={12} sm={6} alignItems="center"
-                          justifyContent="space-between"
-                          direction="column" style={{ padding: 10 }}>
-                        <div />
-                        <div style={{ display: 'flex', flexDirection: 'column',
-                            maxWidth: 400, minWidth:300}}>
-                            <Grid container style={{ justifySelf: 'center' }}>
-                                <h1>Let's get you in...</h1>
-                            </Grid>
-                            <TextField id="email" label="email" margin="normal" type="email" />
-                            <TextField id="password" label="password" margin="normal" type="password"/>
-                            <div style={{ height: 20 }} />
-                            <Button color="primary"
-                                    type="submit"
-                                    variant="contained"
-                                    onClick={ () => { alert("Login is being implemented!"); } }>
-                                Login
-                            </Button>
-                            <Button onClick={ () => { console.log("Sign up clicked!"); } }>Get an account</Button>
-                        </div>
-                        <div />
-                    </Grid>
-                </Grid>
+                <Container style={ { minHeight: '20vh', maxHeight: '50vh' } }>
+                    <Row style={{ verticalAlign: "middle" }}>
+                        <Col xs={12} sm={6}>
+                            <Image src="https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80"
+                                 fluid alt="a happy dog running on the beach" />
+                        </Col>
+                        <Col xs={12} sm={6} style={{ padding: 10 }}>
+                            <Row>
+                                <Container style={{ height:'25vh' }}/>
+                                <Container style={{ maxWidth: '50vh' }}>
+                                    <h3>Let's get you in...</h3>
+                                </Container>
+                                <Container style={{ maxWidth:'50vh' }}>
+                                    <Switch>
+                                        <Route exact path={["/", "/home"]} component={LoginForm} />
+                                        <Route exact path="/login" component={LoginForm} />
+                                        <Route exact path="/register" component={RegisterForm} />
+                                    </Switch>
+                                </Container>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Container>
             </div>
         );
     }
 }
 
+/**
+ * Legacy login component
+ *
+ * @deprecated Will be removed in release
+ * @author btarcahn
+ * @constructor
+ */
 const LoginComponent: React.FC = () => {
     return (
         <div>
             <Grid container style={ { minHeight: '20vh', maxHeight: '50vh' } }>
                 <Grid item xs={12} sm={6}>
-                    <img src="https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80"
+                    <Image fluid src="https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80"
                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                          alt="a happy dog running on the beach" />
                 </Grid>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = process.env["DEV_API"];
+const API_URL = process.env["DEV_API"] || "http://localhost:3000";
 const AUTH_URL = {
     login: "/auth/sign_in",
     logout: "/auth/sign_out",
@@ -19,15 +19,22 @@ class AuthService {
     login(email: string, password: string) {
         return axios.post(
             API_URL + AUTH_URL.login, {
-                email: email,
-                password: password
+                user: {
+                    email: email,
+                    password: password
+                }
             })
             .then(response => {
-               if (response.data.token) {
-                   localStorage.setItem("email", JSON.stringify(response.data));
-               }
-
-               return response.data
+                if (response.status === 201 && response.data.token) {
+                    localStorage.setItem("email", JSON.stringify(response.data.token));
+                }
+                return response;
+            })
+            .catch(error => {
+                if (error.response.status === 422) {
+                    return error.response;
+                }
+                throw error;
             });
     }
 
@@ -40,11 +47,23 @@ class AuthService {
     }
 
     register(email: string, password: string, password_confirmation: string) {
+        if (password !== password_confirmation) {
+            throw Error("password and password_confirmation don't match.");
+        }
+
         return axios.post(
             API_URL + AUTH_URL.register, {
-                email: email,
-                password: password,
-                password_confirmation: password_confirmation
+                user: {
+                    email: email,
+                    password: password,
+                    password_confirmation: password_confirmation
+                }
+            })
+            .then(response => {
+                return response;
+            })
+            .catch(error => {
+                return error.response;
             });
     }
 
