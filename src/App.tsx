@@ -1,21 +1,26 @@
 import React, { Component } from "react";
-import { Switch, Route, Link } from "react-router-dom";
+import {Switch, Route, Link, Router} from "react-router-dom";
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
+import {Nav, Navbar} from "react-bootstrap";
 import "./App.css";
 
 import AuthService from "./services/auth.service";
+import UserService from "./services/user.service";
+
 import PublicNavbar from "./components/public.navbar";
 //TODO import IUser from './types/user.type';
 
 
-import { Login, LoginComponent } from "./components/login.component";
-import {AppBar, IconButton, Toolbar, Typography} from "@mui/material";
-import {Container} from "react-bootstrap";
-import RegisterForm from "./components/register.form";
+import Home from "./components/home.component";
+import { Container } from "react-bootstrap";
+import { history } from "./helpers/history";
+import { clearMessage } from "./actions/message";
+import { connect } from "react-redux";
+import UserProfile from "./components/user-profile.component";
 
 //TODO import EventBus from "./common/EventBus";
 
-type Props = {};
+type Props = any;
 
 type State = {
   //TODO readapt this later
@@ -23,12 +28,6 @@ type State = {
   showAdminBoard: boolean,
   currentUser: string | undefined
 };
-
-// const App: React.FC = () => {
-//   return (
-//       <LoginComponent />
-//   );
-// };
 
 class App extends Component<Props, State> {
   constructor(props: Props) {
@@ -41,18 +40,22 @@ class App extends Component<Props, State> {
       showAdminBoard: false,
       currentUser: undefined
     }
+
+    history.listen((location) => {
+      props.dispatch(clearMessage());
+    });
   }
 
   componentDidMount() {
-    const user = AuthService.getCurrentUser();
+    const user = this.props.user;
 
-    // if (user) {
-    //   this.setState({
-    //     currentUser: user,
-    //     showModeratorBoard: user.roles.includes("ROLE_MODERATOR"),
-    //     showAdminBoard: user.roles.includes("ROLE_ADMIN"),
-    //   });
-    // }
+    if (user) {
+      this.setState({
+        currentUser: user,
+        // showModeratorBoard: user.roles.includes("ROLE_MODERATOR"),
+        // showAdminBoard: user.roles.includes("ROLE_ADMIN"),
+      });
+    }
     //TODO EventBus.on("logout", this.logout);
   }
 
@@ -60,7 +63,7 @@ class App extends Component<Props, State> {
     //TODO EventBus.remove("logout", this.logout);
   }
 
-  logout() {
+  private logout() {
     AuthService.logout();
     this.setState({
       showModeratorBoard: false,
@@ -70,28 +73,48 @@ class App extends Component<Props, State> {
   }
 
   render() {
+    const { currentUser, showModeratorBoard, showAdminBoard } = this.state;
+
     return (
-        <div>
+        <Router history={history}>
           <Container>
-            <PublicNavbar />
+            <Navbar bg="dark" variant="dark">
+              <Navbar.Brand href="/">
+                <Link to={"/"}>postii</Link>
+              </Navbar.Brand>
+              <Nav className="me-auto">
+                <Nav.Link href="/register">
+                  <Link to={"/register"}>Register</Link>
+                </Nav.Link>
+                <Nav.Link href="/about">
+                  <Link to={"/about"}>About</Link>
+                </Nav.Link>
+                <Nav.Link href="/pricing">
+                  <Link to={"/pricing"}>Pricing</Link>
+                </Nav.Link>
+
+                {currentUser && (
+                    <Nav.Link href="/profile">
+                      <Link to={"/profile"}>Profile</Link>
+                    </Nav.Link>
+                )}
+              </Nav>
+            </Navbar>
+            <Container className="container mt-3">
+              <Switch>
+                <Route exact path={["/", "/home"]} component={Home} />
+                <Route exact path="/profile" component={UserProfile} />
+              </Switch>
+            </Container>
           </Container>
-
-          <Container>
-            <Switch>
-              <Route exact path={["/", "/home"]} component={Login} />
-              <Route exact path="/login" component={Login} />
-              <Route exact path="/register" component={Login} />
-              {/*<Route exact path="/profile" component={Profile} />*/}
-              {/*<Route path="/user" component={BoardUser} />*/}
-              {/*<Route path="/mod" component={BoardModerator} />*/}
-              {/*<Route path="/admin" component={BoardAdmin} />*/}
-            </Switch>
-          </Container>
-        </div>
-
-
+        </Router>
     );
   }
 }
 
-export default App;
+function mapStateToProps(state: any) {
+  const { user } = state.auth;
+  return { user };
+}
+
+export default connect(mapStateToProps)(App);

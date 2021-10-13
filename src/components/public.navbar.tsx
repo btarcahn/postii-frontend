@@ -1,8 +1,17 @@
 import {Component} from "react";
 import { Container, Nav } from "react-bootstrap";
 import Navbar from "react-bootstrap/Navbar";
+import { Router, Switch, Route, Link } from "react-router-dom";
 
-export default class PublicNavbar extends Component {
+type Props = { history: any };
+type State = { currentUser: any };
+
+export default class PublicNavbar extends Component<Props, State> {
+    constructor(props: Props) {
+        super(props);
+        this.state = { currentUser: undefined };
+    }
+
     render() {
         return (
             <Container>

@@ -69,9 +69,7 @@ class AuthService {
 
     getCurrentUser() {
         const userStr = localStorage.getItem("email");
-        if (userStr) return JSON.parse(userStr);
-
-        return null;
+        return userStr ? JSON.parse(userStr) : null;
     }
 }
 
