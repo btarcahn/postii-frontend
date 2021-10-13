@@ -1,34 +1,42 @@
 import React from "react";
 import { Button, Form } from "react-bootstrap";
+import { connect } from "react-redux";
 
 import AuthService from "../services/auth.service";
 import {RouteComponentProps} from "react-router-dom";
 
-interface RouterProps {
-    history: string;
-}
+// interface RouterProps {
+//     history: string;
+// }
+//
+// type FormProps = RouteComponentProps<RouterProps>;
 
-type FormProps = RouteComponentProps<RouterProps>;
+type FormProps = {
+
+}
 
 type FormState = {
     email: string,
     password: string,
-    password_confirmation: string
+    password_confirmation: string,
+    successful: boolean
 }
 
-export default class RegisterForm extends React.Component<FormProps, FormState> {
+class RegisterForm extends React.Component<FormProps, FormState> {
     constructor(props: FormProps) {
         super(props);
 
         this.state = {
             email: "",
             password: "",
-            password_confirmation: ""
+            password_confirmation: "",
+            successful: false
         };
     }
 
     onSubmit(e: React.FormEvent) {
         e.preventDefault();
+        //TODO perform password check
         if (this.state.password !== this.state.password_confirmation) {
             alert("Password and password confirmation are not the same");
             return;
@@ -37,23 +45,30 @@ export default class RegisterForm extends React.Component<FormProps, FormState> 
     }
 
     private doRegister(formVal: { email: string, password: string, password_confirmation: string }) {
+        this.setState({ successful: false });
+
         const { email, password, password_confirmation } = formVal;
 
         AuthService.register(email, password, password_confirmation)
             .then((response) => {
                 switch (response.status) {
                     case 200:
+                        this.setState({ successful: true });
                         alert("Account created, you can now login.");
                         break;
                     default:
+                        this.setState({ successful: false })
                         alert(`Something went wrong: error ${response.status}.`);
                 }
-            });
+            })
+            .catch((error) => this.setState({ successful: false }));
     }
 
     private onLogin(e: React.FormEvent) {
         e.preventDefault();
-        this.props.history.push("/login");
+
+        //TODO return to login form
+        // this.props.history.push("/login");
     }
 
     render() {
@@ -92,5 +107,11 @@ export default class RegisterForm extends React.Component<FormProps, FormState> 
             </Form>
         );
     }
-
 }
+
+function mapStateToProps(state: any) {
+    const { message } = state.message;
+    return { message };
+}
+
+export default connect(mapStateToProps)(RegisterForm);

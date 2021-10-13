@@ -2,40 +2,54 @@ import React from "react";
 import { Button, Form } from "react-bootstrap";
 
 import AuthService from "../services/auth.service";
-import {RouteComponentProps, useHistory} from "react-router-dom";
+import { RouteComponentProps, Redirect } from "react-router-dom";
 
-interface RouterProps {
-    history: string;
+import { connect } from "react-redux";
+import { login } from "../actions/auth";
+
+
+// interface RouterProps {
+//     history: string;
+// }
+
+// type FormProps = RouteComponentProps<RouterProps>;
+type FormProps = { history: [string],
+    dispatch: (func: any) => Promise<any>
 }
-
-type FormProps = RouteComponentProps<RouterProps>;
 
 type FormState = {
     email: string,
-    password: string
+    password: string,
+    loading: boolean
 }
 
 /**
  * The login form component, contains the form and functions to handle login.
  *
- * @version 1.0
+ * @version 2.0
  * @author btarcahn
  */
-export default class LoginForm extends React.Component<FormProps, FormState> {
+class LoginForm extends React.Component<FormProps, FormState> {
     constructor(props: FormProps) {
         super(props);
 
         this.state = {
             email: "",
-            password: ""
+            password: "",
+            loading: false
         }
     }
 
-    private doLogin(formVal: { email: string, password: string }) {
-        const { email, password } = formVal;
+    private doLogin() {
 
-        AuthService.login(email, password)
+        const { dispatch, history } = this.props;
+
+        this.setState({ loading: true });
+
+        dispatch(login(this.state.email, this.state.password))
             .then((response) => {
+                // history.push("/profile");
+                // window.location.reload();
                 switch (response.status) {
                     case 201:
                         alert("Login successful");
@@ -44,16 +58,27 @@ export default class LoginForm extends React.Component<FormProps, FormState> {
                         alert("Invalid login credentials");
                         break;
                 }
+            })
+            .catch(() => {
+                this.setState({ loading: false });
             });
+
+        // AuthService.login(email, password)
+        //     .then((response) => {
+        //         switch (response.status) {
+        //             case 201:
+        //                 alert("Login successful");
+        //                 break;
+        //             case 422:
+        //                 alert("Invalid login credentials");
+        //                 break;
+        //         }
+        //     });
     }
 
-    /**
-     * Handle submit event of Form.
-     * @param e event
-     */
     onSubmit(e: React.FormEvent) {
         e.preventDefault();
-        this.doLogin(this.state);
+        this.doLogin();
     }
 
     onRegister(e: React.FormEvent) {
@@ -91,3 +116,11 @@ export default class LoginForm extends React.Component<FormProps, FormState> {
         );
     }
 }
+
+function mapStateToProps(state: any) {
+    const { isLoggedIn } = state.auth;
+    const { message } = state.message;
+    return { isLoggedIn, message };
+}
+
+export default connect(mapStateToProps)(LoginForm);

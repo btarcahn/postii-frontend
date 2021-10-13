@@ -6,7 +6,8 @@ import {
 import AuthService from "../services/auth.service";
 
 export const register =
-    (email: string, password: string, password_confirmation: string) => (dispatch: any) => {
+    (email: string, password: string, password_confirmation: string) =>
+        (dispatch: (param: { type: string, payload?: any }) => any) => {
     return AuthService.register(email, password, password_confirmation)
         .then((response) => {
             dispatch({
@@ -40,8 +41,9 @@ export const register =
 };
 
 
-export const login = (email: string,
-                      password: string) => (dispatch: any) => {
+export const login =
+    (email: string, password: string) =>
+        (dispatch: (param: { type: string, payload?: any }) => any) => {
     return AuthService.login(email, password)
         .then((data) => {
             dispatch({
@@ -72,7 +74,7 @@ export const login = (email: string,
         });
 };
 
-export const logout = () => (dispatch: any) => {
+export const logout = () => (dispatch: (param: { type: string }) => any) => {
     AuthService.logout()
         .then((data) => {
             return Promise.resolve();
