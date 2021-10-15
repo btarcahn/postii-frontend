@@ -13,7 +13,7 @@ type State = {
 };
 
 export const NilComponent: React.FC<Props> = () => (
-    <Container style={{ minHeight: '20vh', maxHeight: '50vh' }}>
+    <Container style={{ maxWidth: '75%', maxHeight: '75%' }}>
         <h3>Oops! Something happened!</h3>
         <Container style={{ maxHeight: '75%', maxWidth: '75%' }}>
             <Image src="https://img.freepik.com/free-vector/404-error-with-character-error-design-template-website_114341-24.jpg?size=626&ext=jpg"
